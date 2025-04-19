@@ -6,6 +6,7 @@ import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import HeroVideoDialog from "@/components/magicui/hero-video-dialog";
+import AnimatedListDemo from "../test/page";
 
 export default function LandingPage() {
   return (
@@ -94,6 +95,13 @@ export default function LandingPage() {
                   className="ml-1 size-4 stroke-neutral-500 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Animated List Demo - Between Main Content and Video */}
+          <div className="relative z-10 -mt-32 mb-32">
+            <div className="max-w-4xl mx-auto">
+              <AnimatedListDemo />
             </div>
           </div>
 
