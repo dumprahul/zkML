@@ -58,6 +58,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const compiledModelPath = path.join(process.cwd(), 'ezkl', 'model.compiled');
     const settingsPath = path.join(process.cwd(), 'ezkl', 'settings.json');
     const pkPath = path.join(process.cwd(), 'ezkl', 'pk.key');
+    const vkPath = path.join(process.cwd(), 'ezkl', 'vk.key');
     const witnessPath = path.join(uploadDir, 'witness.json');
     const proofPath = path.join(uploadDir, 'proof.json');
 
@@ -68,6 +69,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     console.log('Compiled model path:', compiledModelPath);
     console.log('Settings path:', settingsPath);
     console.log('PK path:', pkPath);
+    console.log('VK path:', vkPath);
     console.log('Witness path:', witnessPath);
     console.log('Proof path:', proofPath);
 
@@ -82,12 +84,33 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       console.log('Running command:', proveCommand);
       await runCommand(proveCommand);
 
+      // Verify all required files exist before verification
+      const requiredFiles = {
+        'Verification Key': vkPath,
+        'Proof': proofPath,
+        'Settings': settingsPath
+      };
+
+      const missingFiles = Object.entries(requiredFiles)
+        .filter(([_, path]) => !fs.existsSync(path))
+        .map(([name]) => name);
+
+      if (missingFiles.length > 0) {
+        throw new Error(`Missing required files for verification: ${missingFiles.join(', ')}`);
+      }
+
+      // Step 3: Verify Proof
+      const verifyCommand = `ezkl verify --proof-path ${proofPath} --vk-path ${vkPath} --settings-path ${settingsPath}`;
+      console.log('Running command:', verifyCommand);
+      const verifyOutput = await runCommand(verifyCommand);
+
       // Read the generated proof
       const proof = fs.readFileSync(proofPath, 'utf-8');
 
       return res.status(200).json({ 
-        message: 'Proof generated successfully',
-        proof: JSON.parse(proof)
+        message: 'Proof generated and verified successfully',
+        proof: JSON.parse(proof),
+        verification: verifyOutput
       });
     } catch (error) {
       console.error('Error executing commands:', error);

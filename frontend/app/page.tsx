@@ -191,9 +191,22 @@ export default function Home() {
                 </button>
               </div>
               <div className="bg-gray-50 rounded-lg p-4">
-                <pre className="text-sm text-gray-800 overflow-auto">
-                  {JSON.stringify(proof, null, 2)}
-                </pre>
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Proof</h3>
+                  <pre className="text-sm text-gray-800 overflow-auto bg-white p-4 rounded">
+                    {JSON.stringify(proof, null, 2)}
+                  </pre>
+                </div>
+                {proof.verification && (
+                  <div className="mt-4">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Verification Result</h3>
+                    <div className="bg-white p-4 rounded">
+                      <pre className="text-sm text-gray-800">
+                        {proof.verification}
+                      </pre>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
