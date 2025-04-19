@@ -86,16 +86,13 @@ const Notification = ({ name, description, icon, color, time, style }: Item) => 
   );
 };
 
-export default function AnimatedListDemo({
-  className,
-}: {
-  className?: string;
-}) {
+export default function AnimatedListDemo() {
   return (
     <div
       className={cn(
         "relative flex h-[500px] w-full flex-col overflow-hidden p-2",
-        className,
+        "animate-in slide-in-from-bottom-8 duration-1000",
+        "hover:scale-105 transition-transform duration-300"
       )}
     >
       <style jsx global>{`
@@ -131,7 +128,7 @@ export default function AnimatedListDemo({
       `}</style>
       <AnimatedList>
         {notifications.map((item, idx) => (
-          <Notification {...item} key={idx} style={{ animationDelay: `${idx * 0.5}s` }} />
+          <Notification {...item} key={idx} />
         ))}
       </AnimatedList>
 
