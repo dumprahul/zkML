@@ -1,30 +1,5 @@
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardTitle,
-  } from "@/components/ui/card";
-  import { WarpBackground } from "../../components/magicui/warp-background";
-import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text";
+import { TypingAnimation } from "../../components/magicui/typing-animation";
 
-  export default function ExampleComponentDemo() {
-    return (
-        <>
-        
-      <WarpBackground>
-        <Card className="w-80">
-          <CardContent className="flex flex-col gap-2 p-4">
-            <CardTitle>Congratulations on Your Promotion!</CardTitle>
-            <CardDescription>
-              Your hard work and dedication have paid off. We&apos;re thrilled to
-              see you take this next step in your career. Keep up the fantastic
-              work!
-            </CardDescription>
-          </CardContent>
-        </Card>
-      </WarpBackground>
-
-      </>
-    );
-  }
-  
+export default function TypingAnimationDemo() {
+  return <TypingAnimation>Typing Animation</TypingAnimation>;
+}
