@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { cn } from "@/lib/utils";
 import { AnimatedList } from "../../components/magicui/animated-list";
 
@@ -86,7 +87,7 @@ const Notification = ({ name, description, icon, color, time, style }: Item) => 
   );
 };
 
-export default function AnimatedListDemo() {
+export default function AnimatedListDemo(): React.ReactNode {
   return (
     <div
       className={cn(
