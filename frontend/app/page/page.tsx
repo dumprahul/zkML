@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import HeroVideoDialog from "@/components/magicui/hero-video-dialog";
 import AnimatedListDemo from "../test/page";
+import { SparklesText } from "@/components/magicui/sparkles-text";
 
 export default function LandingPage() {
   return (
@@ -219,6 +220,15 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Sparkles Text Section */}
+          <div className="relative py-12 text-center">
+            <div className="max-w-7xl mx-auto">
+              <SparklesText className="text-4xl font-bold text-white">
+                built by rahul shanmugam.
+              </SparklesText>
             </div>
           </div>
         </div>
