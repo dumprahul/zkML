@@ -124,6 +124,103 @@ export default function LandingPage() {
               />
             </div>
           </div>
+
+          {/* Steps Section */}
+          <div className="relative py-20">
+            {/* Background gradient for steps */}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#1e1b4b]/20 to-transparent" />
+            
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-16">
+                <div className="group relative mx-auto flex items-center justify-center rounded-full px-3 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f] w-fit bg-black">
+                  <span
+                    className={cn(
+                      "absolute inset-0 block h-full w-full animate-gradient rounded-[inherit] bg-gradient-to-r from-[#ffaa40]/50 via-[#9c40ff]/50 to-[#ffaa40]/50 bg-[length:300%_100%] p-[1px]",
+                    )}
+                    style={{
+                      WebkitMask:
+                        "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                      WebkitMaskComposite: "destination-out",
+                      mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                      maskComposite: "subtract",
+                      WebkitClipPath: "padding-box",
+                    }}
+                  />
+                  <AnimatedGradientText className="text-xl font-medium sm:text-medium bg-amber-100">
+                    How it works 🛠️
+                  </AnimatedGradientText>
+                  <ChevronRight
+                    className="ml-1 size-4 stroke-neutral-500 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5"
+                  />
+                </div>
+                <p className="mt-4 text-2xl text-white font-bold italic">
+                  Three simple steps to get started with zkML on Sei
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Step 1 */}
+                <div className="group relative p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)]">
+                  <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#3b82f6]/30">
+                    1
+                  </div>
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#3b82f6]/10 to-[#8b5cf6]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <h3 className="text-2xl font-bold text-white mb-4 relative">
+                    Upload Your Model
+                  </h3>
+                  <p className="text-white/70 relative">
+                    Upload your machine learning model to ZuggingFace. We support various model formats and architectures.
+                  </p>
+                  <div className="mt-6 relative">
+                    <span className="inline-flex items-center text-sm font-medium text-white/60 group-hover:text-white transition-colors">
+                      Learn more
+                      <ChevronRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </span>
+                  </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="group relative p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-500 hover:shadow-[0_0_30px_rgba(139,92,246,0.3)]">
+                  <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#ec4899] flex items-center justify-center text-white font-bold shadow-lg shadow-[#8b5cf6]/30">
+                    2
+                  </div>
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#8b5cf6]/10 to-[#ec4899]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <h3 className="text-2xl font-bold text-white mb-4 relative">
+                    Generate Proofs
+                  </h3>
+                  <p className="text-white/70 relative">
+                    Our platform automatically generates zero-knowledge proofs for your model's inferences using Halo2.
+                  </p>
+                  <div className="mt-6 relative">
+                    <span className="inline-flex items-center text-sm font-medium text-white/60 group-hover:text-white transition-colors">
+                      Learn more
+                      <ChevronRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </span>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="group relative p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-500 hover:shadow-[0_0_30px_rgba(236,72,153,0.3)]">
+                  <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-gradient-to-r from-[#ec4899] to-[#3b82f6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#ec4899]/30">
+                    3
+                  </div>
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#ec4899]/10 to-[#3b82f6]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <h3 className="text-2xl font-bold text-white mb-4 relative">
+                    Verify on Sei
+                  </h3>
+                  <p className="text-white/70 relative">
+                    Deploy your verified proofs on the Sei blockchain for trustless verification and integration with smart contracts.
+                  </p>
+                  <div className="mt-6 relative">
+                    <span className="inline-flex items-center text-sm font-medium text-white/60 group-hover:text-white transition-colors">
+                      Learn more
+                      <ChevronRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
