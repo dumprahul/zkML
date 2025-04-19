@@ -5,9 +5,12 @@ import {
     CardTitle,
   } from "@/components/ui/card";
   import { WarpBackground } from "../../components/magicui/warp-background";
-  
+import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text";
+
   export default function ExampleComponentDemo() {
     return (
+        <>
+        
       <WarpBackground>
         <Card className="w-80">
           <CardContent className="flex flex-col gap-2 p-4">
@@ -20,6 +23,8 @@ import {
           </CardContent>
         </Card>
       </WarpBackground>
+
+      </>
     );
   }
   
