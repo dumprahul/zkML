@@ -17,7 +17,6 @@ let notifications = [
     name: "Payment via contracts",
     description: "Sei Blockchain",
     time: "15m ago",
-
     icon: "💸",
     color: "#00C9A7",
   },
@@ -51,13 +50,9 @@ const Notification = ({ name, description, icon, color, time, style }: Item) => 
     <figure
       className={cn(
         "relative mx-auto min-h-fit w-full max-w-[400px] cursor-pointer overflow-hidden rounded-2xl p-4",
-        // animation styles
         "transition-all duration-500 ease-in-out",
-        // light styles
         "bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
-        // dark styles
         "transform-gpu dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]",
-        // pop animation
         "animate-pop-in-out"
       )}
       style={style}
@@ -86,18 +81,9 @@ const Notification = ({ name, description, icon, color, time, style }: Item) => 
   );
 };
 
-export default function AnimatedListDemo({
-  className,
-}: {
-  className?: string;
-}) {
+export default function Page() {
   return (
-    <div
-      className={cn(
-        "relative flex h-[500px] w-full flex-col overflow-hidden p-2",
-        className,
-      )}
-    >
+    <div className="relative flex h-[500px] w-full flex-col overflow-hidden p-2">
       <style jsx global>{`
         @keyframes popInOut {
           0% {
