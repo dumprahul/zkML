@@ -297,9 +297,9 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* View Proof Button */}
+                {/* View Proof and Verify Buttons */}
                 {proof && (
-                  <div className="flex justify-center">
+                  <div className="flex justify-center gap-4">
                     <button
                       onClick={() => setShowModal(true)}
                       className={cn(
@@ -311,6 +311,25 @@ export default function Home() {
                     >
                       <FileJson className="w-5 h-5" />
                       View Proof
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Add verification logic here
+                        console.log('Verifying with Sei...');
+                      }}
+                      className={cn(
+                        "py-3 px-6 rounded-lg font-medium transition-all duration-200",
+                        "bg-gradient-to-r from-[#22c55e] to-[#16a34a] text-white",
+                        "hover:from-[#2dd66e] hover:to-[#1db34a] hover:shadow-lg hover:shadow-[#22c55e]/20",
+                        "flex items-center gap-2"
+                      )}
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Verify with Sei
                     </button>
                   </div>
                 )}

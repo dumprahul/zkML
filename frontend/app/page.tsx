@@ -55,7 +55,7 @@ export default function Page() {
       setMessage('Please select input.json file first.');
       return;
     }
-
+    
     const formData = new FormData();
     formData.append('file', file);
 
@@ -73,7 +73,7 @@ export default function Page() {
         setMessage(result.error || 'Error processing file.');
         setSteps(steps.map(step => ({ ...step, status: 'error' })));
       } else {
-        const result = await response.json();
+      const result = await response.json();
         setMessage('All steps completed successfully!');
         setProof(result);
         setSteps(steps.map(step => ({ ...step, status: 'completed' })));
@@ -191,10 +191,10 @@ export default function Page() {
                             </p>
                             <p className="text-xs text-white/40">input.json only</p>
                           </div>
-                          <input
-                            type="file"
-                            accept=".json"
-                            onChange={handleFileChange}
+        <input
+          type="file"
+          accept=".json"
+          onChange={handleFileChange}
                             className="hidden"
                           />
                         </label>
@@ -222,8 +222,8 @@ export default function Page() {
                       </pre>
                     </div>
 
-                    <button
-                      type="submit"
+        <button
+          type="submit"
                       disabled={loading || !file}
                       className={cn(
                         "w-full py-4 px-6 rounded-lg font-medium transition-all duration-200",
@@ -244,8 +244,8 @@ export default function Page() {
                           Generate Proof
                         </>
                       )}
-                    </button>
-                  </form>
+        </button>
+      </form>
                 </div>
 
                 {/* Processing Steps */}
@@ -350,7 +350,7 @@ export default function Page() {
             </div>
           </div>
         )}
-      </div>
+    </div>
     </>
   );
 }
