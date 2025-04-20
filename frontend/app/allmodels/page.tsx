@@ -12,46 +12,64 @@ const models = [
   {
     name: "Image Classifier",
     description: "Advanced image classification model with zero-knowledge proofs for privacy-preserving inference",
+    owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
+    costPerCall: "0.01 ETH",
     color: "#3b82f6",
   },
   {
     name: "NLP Model",
     description: "Natural language processing model with verifiable text classification capabilities",
+    owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
+    costPerCall: "0.02 ETH",
     color: "#8b5cf6",
   },
   {
     name: "Security Model",
     description: "Security-focused model for anomaly detection with privacy guarantees",
+    owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
+    costPerCall: "0.015 ETH",
     color: "#ec4899",
   },
   {
     name: "Recommendation",
     description: "Personalized recommendation system with privacy-preserving user data handling",
+    owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
+    costPerCall: "0.01 ETH",
     color: "#f59e0b",
   },
   {
     name: "Time Series",
     description: "Time series prediction model with verifiable forecasting capabilities",
+    owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
+    costPerCall: "0.02 ETH",
     color: "#10b981",
   },
   {
     name: "Privacy Model",
     description: "Differential privacy model for secure data analysis and inference",
+    owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
+    costPerCall: "0.015 ETH",
     color: "#6366f1",
   },
   {
     name: "Optimization",
     description: "Optimization model for resource allocation with verifiable results",
+    owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
+    costPerCall: "0.01 ETH",
     color: "#f43f5e",
   },
   {
     name: "Network Model",
     description: "Network analysis model with privacy-preserving graph processing",
+    owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
+    costPerCall: "0.02 ETH",
     color: "#8b5cf6",
   },
   {
     name: "Custom Model",
     description: "Upload and verify your own custom machine learning model",
+    owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
+    costPerCall: "0.01 ETH",
     color: "#3b82f6",
   },
 ];
@@ -138,9 +156,19 @@ export default function AllModelsPage() {
                     <h3 className="text-xl font-bold text-white mb-3">
                       {model.name}
                     </h3>
-                    <p className="text-white/70 text-base leading-relaxed">
-                      {model.description}
-                    </p>
+                    <div className="space-y-3">
+                      <div className="text-white/70 text-sm">
+                        <span className="text-white/50">Owner: </span>
+                        <span className="font-mono">{model.owner.slice(0, 6)}...{model.owner.slice(-4)}</span>
+                      </div>
+                      <p className="text-white/70 text-base leading-relaxed">
+                        {model.description}
+                      </p>
+                      <div className="text-white/70 text-sm">
+                        <span className="text-white/50">Cost per call: </span>
+                        <span className="font-medium">{model.costPerCall}</span>
+                      </div>
+                    </div>
                     <div className="mt-4">
                       <span className="inline-flex items-center text-sm font-medium text-white/60 group-hover:text-white transition-colors">
                         Select model
