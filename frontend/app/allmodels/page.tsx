@@ -139,9 +139,11 @@ export default function AllModelsPage() {
                   </LineShadowText>
                 </div>
               </div>
-              <AnimatedGradientText className="text-xl text-white/90 font-medium tracking-tight mt-8">
-                Choose from our collection of pre-verified models or upload your own
-              </AnimatedGradientText>
+              <div className="mt-12 mb-8">
+                <AnimatedGradientText className="text-xl text-white/90 font-medium tracking-tight">
+                  Choose from our collection of pre-verified models or upload your own
+                </AnimatedGradientText>
+              </div>
             </div>
 
             {/* Model Grid */}
