@@ -12,7 +12,7 @@ interface Step {
   description: string;
 }
 
-export default function Home() {
+export default function Page() {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
