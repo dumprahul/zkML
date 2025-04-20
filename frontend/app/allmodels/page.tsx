@@ -2,13 +2,19 @@
 
 import { LineShadowText } from "@/components/magicui/line-shadow-text";
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useRouter } from "next/navigation";
 
 const models = [
+  {
+    name: "Upload Your Model",
+    description: "Upload and verify your own custom machine learning model",
+    isUpload: true,
+    color: "#3b82f6",
+  },
   {
     name: "Image Classifier",
     description: "Advanced image classification model with zero-knowledge proofs for privacy-preserving inference",
@@ -131,7 +137,7 @@ export default function AllModelsPage() {
             <div className="text-center mb-16">
               <div className="relative">
                 <LineShadowText className="italic text-white text-7xl font-bold" shadowColor="white">
-                  Models.
+                  zkModeLs
                 </LineShadowText>
                 <div className="absolute -bottom-4 left-0 w-full">
                   <LineShadowText className="italic text-white/30 text-5xl font-bold" shadowColor="transparent">
@@ -140,8 +146,8 @@ export default function AllModelsPage() {
                 </div>
               </div>
               <div className="mt-12 mb-8">
-                <AnimatedGradientText className="text-xl text-white/90 font-medium tracking-tight">
-                  Choose from our collection of pre-verified models or upload your own
+                <AnimatedGradientText className="text-xl text-white/90 font-medium tracking-tight italic">
+                  Choose from our collection of pre-verified models or upload your own - to get monitized. 
                 </AnimatedGradientText>
               </div>
             </div>
@@ -151,29 +157,47 @@ export default function AllModelsPage() {
               {models.map((model, index) => (
                 <div
                   key={model.name}
-                  className="group relative p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:scale-[1.02]"
+                  className={`group relative p-6 rounded-2xl backdrop-blur-xl border transition-all duration-300 hover:scale-[1.02] ${
+                    model.isUpload
+                      ? "bg-gradient-to-br from-[#3b82f6]/20 to-[#8b5cf6]/20 border-[#3b82f6]/30 hover:border-[#3b82f6]/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]"
+                      : "bg-white/5 border-white/10 hover:border-white/20 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+                  }`}
                 >
                   {/* Content */}
                   <div className="relative z-10">
                     <h3 className="text-xl font-bold text-white mb-3">
                       {model.name}
                     </h3>
-                    <div className="space-y-3">
-                      <div className="text-white/70 text-sm">
-                        <span className="text-white/50">Owner: </span>
-                        <span className="font-mono">{model.owner.slice(0, 6)}...{model.owner.slice(-4)}</span>
+                    {model.isUpload ? (
+                      <div className="space-y-4">
+                        <p className="text-white/70 text-base leading-relaxed">
+                          {model.description}
+                        </p>
+                        <div className="flex items-center justify-center p-4 border-2 border-dashed border-white/20 rounded-xl hover:border-white/30 transition-colors">
+                          <div className="text-center">
+                            <Upload className="w-8 h-8 mx-auto mb-2 text-white/70" />
+                            <span className="text-white/70 text-sm">Drag and drop your model here</span>
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-white/70 text-base leading-relaxed">
-                        {model.description}
-                      </p>
-                      <div className="text-white/70 text-sm">
-                        <span className="text-white/50">Cost per call: </span>
-                        <span className="font-medium">{model.costPerCall}</span>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="text-white/70 text-sm">
+                          <span className="text-white/50">Owner: </span>
+                          <span className="font-mono">{model.owner?.slice(0, 6)}...{model.owner?.slice(-4)}</span>
+                        </div>
+                        <p className="text-white/70 text-base leading-relaxed">
+                          {model.description}
+                        </p>
+                        <div className="text-white/70 text-sm">
+                          <span className="text-white/50">Cost per call: </span>
+                          <span className="font-medium">{model.costPerCall}</span>
+                        </div>
                       </div>
-                    </div>
+                    )}
                     <div className="mt-4">
                       <span className="inline-flex items-center text-sm font-medium text-white/60 group-hover:text-white transition-colors">
-                        Select model
+                        {model.isUpload ? "Upload model" : "Select model"}
                         <ChevronRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                       </span>
                     </div>
