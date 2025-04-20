@@ -6,7 +6,7 @@ import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import HeroVideoDialog from "@/components/magicui/hero-video-dialog";
-import AnimatedListDemo from "../test/page";
+import AnimatedListDemo from "../listdemo/page";
 import { SparklesText } from "@/components/magicui/sparkles-text";
 
 export default function LandingPage() {
