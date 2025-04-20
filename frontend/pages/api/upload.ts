@@ -96,7 +96,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         .map(([name]) => name);
 
       if (missingFiles.length > 0) {
-        throw new Error(`Missing required files for verification: ${missingFiles.join(', ')}`);
+        return res.status(400).json({ 
+          error: 'Missing required files',
+          details: `Missing files: ${missingFiles.join(', ')}`
+        });
       }
 
       // Step 3: Verify Proof
@@ -108,15 +111,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       const proof = fs.readFileSync(proofPath, 'utf-8');
 
       return res.status(200).json({ 
+        success: true,
         message: 'Proof generated and verified successfully',
         proof: JSON.parse(proof),
         verification: verifyOutput
       });
     } catch (error) {
       console.error('Error executing commands:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       return res.status(500).json({ 
-        error: `Failed to process zkML commands: ${error}`,
-        details: error instanceof Error ? error.message : String(error)
+        success: false,
+        error: 'Failed to process zkML commands',
+        details: errorMessage
       });
     }
   });

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { cn } from "@/lib/utils";
 import { AnimatedList } from "../../components/magicui/animated-list";
 
@@ -87,13 +86,16 @@ const Notification = ({ name, description, icon, color, time, style }: Item) => 
   );
 };
 
-export default function AnimatedListDemo(): React.ReactNode {
+export default function AnimatedListDemo({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <div
       className={cn(
         "relative flex h-[500px] w-full flex-col overflow-hidden p-2",
-        "animate-in slide-in-from-bottom-8 duration-1000",
-        "hover:scale-105 transition-transform duration-300"
+        className,
       )}
     >
       <style jsx global>{`
@@ -129,7 +131,7 @@ export default function AnimatedListDemo(): React.ReactNode {
       `}</style>
       <AnimatedList>
         {notifications.map((item, idx) => (
-          <Notification {...item} key={idx} />
+          <Notification {...item} key={idx} style={{ animationDelay: `${idx * 0.5}s` }} />
         ))}
       </AnimatedList>
 
