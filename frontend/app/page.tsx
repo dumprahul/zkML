@@ -2,14 +2,17 @@
 
 // app/page.tsx
 
-import { useState, FormEvent, ChangeEvent } from 'react';
+import { useState, FormEvent, ChangeEvent, useEffect } from 'react';
 import { LineShadowText } from "@/components/magicui/line-shadow-text";
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text";
-import { ChevronRight, Upload, FileJson, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { ChevronRight, Upload, FileJson, CheckCircle2, XCircle, Loader2, Copy, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import { Halo2VerifierABI, Halo2VerifierAddress } from './contracts/Halo2Verifier';
 import { ethers } from 'ethers';
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { createPublicClient, createWalletClient, custom, http } from 'viem';
+import { sepolia } from 'viem/chains';
 
 declare global {
   interface Window {
@@ -27,6 +30,26 @@ interface Step {
   description: string;
 }
 
+// Add Sei testnet configuration
+const seiTestnet = {
+  id: 1328,
+  name: 'Sei Testnet',
+  network: 'sei-testnet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Sei',
+    symbol: 'SEI',
+  },
+  rpcUrls: {
+    public: { http: ['https://rpc-testnet.sei-apis.com'] },
+    default: { http: ['https://rpc-testnet.sei-apis.com'] },
+  },
+  blockExplorers: {
+    default: { name: 'Sei Explorer', url: 'https://testnet.sei.explorers.guru' },
+  },
+  testnet: true,
+} as const;
+
 export default function Page() {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState('');
@@ -41,9 +64,11 @@ export default function Page() {
   ]);
   const [verifying, setVerifying] = useState(false);
   const [verificationResult, setVerificationResult] = useState<string | null>(null);
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  const { user, setShowAuthFlow } = useDynamicContext();
 
   const updateStepStatus = (stepIndex: number, status: StepStatus) => {
-    setSteps(prev => prev.map((step, idx) => 
+    setSteps(prev => prev.map((step, idx) =>
       idx === stepIndex ? { ...step, status } : step
     ));
   };
@@ -68,7 +93,7 @@ export default function Page() {
       setMessage('Please select input.json file first.');
       return;
     }
-    
+
     const formData = new FormData();
     formData.append('file', file);
 
@@ -87,9 +112,7 @@ export default function Page() {
         setSteps(steps.map(step => ({ ...step, status: 'error' })));
       } else {
         const result = await response.json();
-        console.log('API Response:', result);
-        console.log('Hex Proof:', result.hex_proof);
-        console.log('Outputs:', result.pretty_public_inputs?.outputs);
+        console.log('Proof Response:', result);
         setMessage('All steps completed successfully!');
         setProof(result);
         setSteps(steps.map(step => ({ ...step, status: 'completed' })));
@@ -109,33 +132,80 @@ export default function Page() {
       return;
     }
 
+    if (!user) {
+      setMessage('Please connect your wallet first');
+      return;
+    }
+
     try {
       setVerifying(true);
       setMessage('Verifying proof on Sei...');
+      setTransactionHash(null);
+      setVerificationResult(null);
 
-      // Convert hex proof to bytes
+      // Convert hex proof to bytes - ensure only one 0x prefix
       const hexProof = proof.proof.hex_proof;
-      const proofBytes = ethers.getBytes(hexProof);
+      const proofBytes = hexProof.startsWith('0x') ? hexProof : `0x${hexProof}`;
 
       // Convert outputs to uint256 array
       const outputs = proof.proof.pretty_public_inputs.outputs[0];
-      const instances = outputs.map((output: string) => ethers.toBigInt(output));
+      const instances = outputs.map((output: string) => BigInt(output));
 
-      // Create contract instance using dynamic wallet
-      const provider = new ethers.BrowserProvider(window.dynamic.wallet);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(Halo2VerifierAddress, Halo2VerifierABI, signer);
+      // Create wallet client with Sei testnet
+      const walletClient = createWalletClient({
+        chain: seiTestnet,
+        transport: custom(window.ethereum as any)
+      });
+
+      // Create public client with Sei testnet
+      const publicClient = createPublicClient({
+        chain: seiTestnet,
+        transport: http()
+      });
+
+      const userAddress = user.verifiedCredentials[0]?.address;
+      if (!userAddress) {
+        throw new Error('No wallet address found');
+      }
 
       // Call verifyProof function
-      const result = await contract.verifyProof(proofBytes, instances);
-      
-      setVerificationResult(result ? 'Proof verified successfully!' : 'Proof verification failed');
-      setMessage(result ? 'Proof verified successfully!' : 'Proof verification failed');
-    } catch (error) {
+      const hash = await walletClient.writeContract({
+        address: Halo2VerifierAddress as `0x${string}`,
+        abi: Halo2VerifierABI,
+        functionName: 'verifyProof',
+        args: [proofBytes, instances],
+        account: userAddress as `0x${string}`
+      });
+
+      setTransactionHash(hash);
+      setMessage('Transaction submitted. Waiting for confirmation...');
+
+      // Wait for transaction receipt with increased timeout
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash,
+        timeout: 300000, // 5 minutes timeout
+        confirmations: 1
+      });
+
+      if (receipt.status === 'success') {
+        setVerificationResult('Proof verified successfully!');
+        setMessage('Proof verified successfully!');
+        setVerifying(false);
+      } else {
+        setVerificationResult('Proof verification failed');
+        setMessage('Proof verification failed');
+        setVerifying(false);
+      }
+    } catch (error: any) {
       console.error('Verification error:', error);
-      setMessage('Error verifying proof');
-      setVerificationResult('Verification failed');
-    } finally {
+      if (error.name === 'WaitForTransactionReceiptTimeoutError') {
+        setMessage('Transaction submitted but taking longer than expected to confirm. Please check the transaction status later.');
+        setVerificationResult('Transaction pending confirmation');
+      } else {
+        setMessage('Error verifying proof');
+        setVerificationResult('Verification failed');
+      }
+      setTransactionHash(null);
       setVerifying(false);
     }
   };
@@ -158,21 +228,45 @@ export default function Page() {
     }
   };
 
+  const connectWallet = () => {
+    setShowAuthFlow(true);
+  };
+
   return (
     <>
       <SmoothCursor />
       <div className="min-h-screen relative overflow-hidden">
+        {/* Wallet Connection Status */}
+        <div className="absolute top-4 right-4">
+          {user ? (
+            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-xl rounded-lg px-4 py-2 border border-white/10">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-white/80 text-sm">
+                Connected: {user.verifiedCredentials[0]?.address?.slice(0, 6)}...{user.verifiedCredentials[0]?.address?.slice(-4)}
+              </span>
+            </div>
+          ) : (
+            <button
+              onClick={connectWallet}
+              className="flex items-center gap-2 bg-white/5 backdrop-blur-xl rounded-lg px-4 py-2 border border-white/10 hover:bg-white/10 transition-colors"
+            >
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <span className="text-white/80 text-sm">Connect Wallet</span>
+            </button>
+          )}
+        </div>
+
         {/* Neon Background */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,_rgba(120,119,198,0.3),_rgba(255,255,255,0))]">
           {/* Base gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a]/90 via-[#1e1b4b]/90 to-[#4c1d95]/90" />
-          
+
           {/* Animated gradient overlay */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#3b82f6]/20 via-[#8b5cf6]/20 to-[#ec4899]/20 animate-pulse" />
-          
+
           {/* Neon grid lines */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,_rgba(59,130,246,0.1)_1px,_transparent_1px),linear-gradient(to_bottom,_rgba(59,130,246,0.1)_1px,_transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
-          
+
           {/* Glowing orbs */}
           <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#3b82f6]/20 blur-3xl animate-pulse" />
           <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full bg-[#ec4899]/20 blur-3xl animate-pulse [animation-delay:1s]" />
@@ -221,6 +315,59 @@ export default function Page() {
                       <span className="text-lg font-medium group-hover:text-white transition-colors">Seamless integration with your workflow</span>
                     </div>
                   </div>
+
+                  {/* Wallet Connection Status */}
+                  <div className="mt-8">
+                    {user ? (
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2 bg-white/5 backdrop-blur-xl rounded-lg px-4 py-2 border border-white/10">
+                          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                          <span className="text-white/80 text-sm">
+                            Connected: {user.verifiedCredentials[0]?.address?.slice(0, 6)}...{user.verifiedCredentials[0]?.address?.slice(-4)}
+                          </span>
+                        </div>
+                        {transactionHash && (
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center justify-between bg-white/5 backdrop-blur-xl rounded-lg px-4 py-2 border border-white/10">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                <span className="text-white/80 text-sm">
+                                  Tx Hash: {transactionHash.slice(0, 6)}...{transactionHash.slice(-4)}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(transactionHash);
+                                  setMessage('Transaction hash copied to clipboard!');
+                                }}
+                                className="p-1 hover:bg-white/10 rounded transition-colors"
+                                title="Copy transaction hash"
+                              >
+                                <Copy className="w-4 h-4 text-white/60 hover:text-white/80" />
+                              </button>
+                            </div>
+                            <a
+                              href={`https://seitrace.com/tx/${transactionHash}?chain=atlantic-2`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-center gap-2 bg-white/5 backdrop-blur-xl rounded-lg px-4 py-2 border border-white/10 hover:bg-white/10 transition-colors text-white/80 text-sm"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                              View on block explorer
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        onClick={connectWallet}
+                        className="flex items-center gap-2 bg-white/5 backdrop-blur-xl rounded-lg px-4 py-2 border border-white/10 hover:bg-white/10 transition-colors"
+                      >
+                        <div className="w-2 h-2 rounded-full bg-red-500" />
+                        <span className="text-white/80 text-sm">Connect Wallet</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -244,10 +391,10 @@ export default function Page() {
                             </p>
                             <p className="text-xs text-white/40">input.json only</p>
                           </div>
-        <input
-          type="file"
-          accept=".json"
-          onChange={handleFileChange}
+                          <input
+                            type="file"
+                            accept=".json"
+                            onChange={handleFileChange}
                             className="hidden"
                           />
                         </label>
@@ -275,8 +422,8 @@ export default function Page() {
                       </pre>
                     </div>
 
-        <button
-          type="submit"
+                    <button
+                      type="submit"
                       disabled={loading || !file}
                       className={cn(
                         "w-full py-4 px-6 rounded-lg font-medium transition-all duration-200",
@@ -297,8 +444,8 @@ export default function Page() {
                           Generate Proof
                         </>
                       )}
-        </button>
-      </form>
+                    </button>
+                  </form>
                 </div>
 
                 {/* Processing Steps */}
@@ -382,7 +529,7 @@ export default function Page() {
                         </button>
                         <button
                           onClick={verifyProof}
-                          disabled={verifying}
+                          disabled={verifying || !proof?.proof}
                           className={cn(
                             "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                             "bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] text-white",
@@ -396,6 +543,11 @@ export default function Page() {
                               <Loader2 className="w-4 h-4 animate-spin" />
                               Verifying...
                             </>
+                          ) : verificationResult?.includes('successfully') ? (
+                            <>
+                              <CheckCircle2 className="w-4 h-4" />
+                              Verified
+                            </>
                           ) : (
                             <>
                               <CheckCircle2 className="w-4 h-4" />
@@ -405,12 +557,12 @@ export default function Page() {
                         </button>
                       </div>
                     </div>
-                    
+
                     {verificationResult && (
                       <div className={cn(
                         "p-4 rounded-lg mb-4",
-                        verificationResult.includes('successfully') 
-                          ? 'bg-green-500/10 border border-green-500/20' 
+                        verificationResult.includes('successfully')
+                          ? 'bg-green-500/10 border border-green-500/20'
                           : 'bg-red-500/10 border border-red-500/20'
                       )}>
                         <p className={cn(
@@ -426,7 +578,7 @@ export default function Page() {
                         </p>
                       </div>
                     )}
-                    
+
                     {showProofDetails && (
                       <div className="space-y-4">
                         <div>
@@ -437,7 +589,7 @@ export default function Page() {
                             </pre>
                           </div>
                         </div>
-                        
+
                         <div>
                           <h4 className="text-sm font-medium text-white/60 mb-2">Outputs</h4>
                           <div className="p-4 bg-black/20 rounded-lg">
@@ -486,7 +638,7 @@ export default function Page() {
             </div>
           </div>
         )}
-    </div>
+      </div>
     </>
   );
 }
