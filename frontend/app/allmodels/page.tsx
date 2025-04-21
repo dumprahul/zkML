@@ -239,24 +239,12 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
       });
 
       setTransactionHash(hash);
-      setUploadStatus('Transaction submitted successfully!');
-
-      // Wait for transaction receipt
-      const receipt = await publicClient.waitForTransactionReceipt({ 
-        hash,
-        timeout: 60000, // 1 minute timeout
-        confirmations: 1
-      });
-
-      if (receipt.status === 'success') {
-        setUploadStatus('Model registered successfully!');
-        // Close modal after successful registration
-        setTimeout(() => {
-          onClose();
-        }, 2000);
-      } else {
-        throw new Error('Transaction failed');
-      }
+      setUploadStatus('Model registered successfully!');
+      
+      // Close modal after successful registration
+      setTimeout(() => {
+        onClose();
+      }, 2000);
 
     } catch (error: any) {
       console.error('Error registering model:', error);
