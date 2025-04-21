@@ -360,14 +360,17 @@ export default function Page() {
                   </div>
                   <div className="space-y-4">
                     <AnimatedGradientText className="text-xl text-white/90 font-medium tracking-tight">
-                      Generate zero-knowledge proofs for your machine learning models with ease and confidence
+                      Generate zero-knowledge proofs for your machine learning models with ease and confidence and verify them on Sei chain!
                     </AnimatedGradientText>
-                    <div className="space-y-2">
+                    <div className="space-y-2 mt-6">
                       <p className="text-lg text-white/80 font-medium">
                         Model Description:
                       </p>
                       <p className="text-white/70">
                         Calculate your carbon credits based on your inputs. Prove your carbon credits without revealing your data.
+                      </p>
+                      <p className="text-white/70 mt-2">
+                        Cost per call: 0.01$ SEI
                       </p>
                     </div>
                   </div>
@@ -384,14 +387,14 @@ export default function Page() {
                         <div className="absolute inset-0 rounded-full border border-[#8b5cf6] animate-ping opacity-0 group-hover:opacity-100 transition-opacity" />
                         <CheckCircle2 className="w-4 h-4 text-[#8b5cf6] relative z-10 transform group-hover:scale-110 transition-transform" />
                       </div>
-                      <span className="text-lg font-medium group-hover:text-white transition-colors">Trustless verification on blockchain</span>
+                      <span className="text-lg font-medium group-hover:text-white transition-colors">Trustless verification on Sei blockchain</span>
                     </div>
                     <div className="flex items-center gap-3 text-white/80 group">
                       <div className="relative p-1.5 rounded-full bg-[#ec4899]/20 group-hover:bg-[#ec4899]/30 transition-all duration-300">
                         <div className="absolute inset-0 rounded-full border border-[#ec4899] animate-ping opacity-0 group-hover:opacity-100 transition-opacity" />
                         <CheckCircle2 className="w-4 h-4 text-[#ec4899] relative z-10 transform group-hover:scale-110 transition-transform" />
                       </div>
-                      <span className="text-lg font-medium group-hover:text-white transition-colors">Seamless integration with your workflow</span>
+                      <span className="text-lg font-medium group-hover:text-white transition-colors">Verify and generate Halo2 Circuit Proofs within seconds</span>
                     </div>
                   </div>
 
