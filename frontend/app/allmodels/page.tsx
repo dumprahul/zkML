@@ -239,7 +239,7 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
       });
 
       setTransactionHash(hash);
-      setUploadStatus('Transaction submitted. Waiting for confirmation...');
+      setUploadStatus('Transaction submitted successfully!');
 
       // Wait for transaction receipt
       const receipt = await publicClient.waitForTransactionReceipt({ 
