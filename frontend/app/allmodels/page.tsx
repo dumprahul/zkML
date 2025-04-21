@@ -2,11 +2,12 @@
 
 import { LineShadowText } from "@/components/magicui/line-shadow-text";
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text";
-import { ChevronRight, Upload } from "lucide-react";
+import { ChevronRight, Upload, X, Plus, FileUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useRouter } from "next/navigation";
+import { useState, ChangeEvent, FormEvent } from 'react';
 
 const models = [
   {
@@ -90,7 +91,226 @@ const models = [
   },
 ];
 
+interface UploadModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface FormData {
+  name: string;
+  description: string;
+  costPerCall: string;
+  category: string;
+  version: string;
+  tags: string;
+}
+
+// Add Modal Component
+const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    description: '',
+    costPerCall: '',
+    category: '',
+    version: '',
+    tags: '',
+  });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setSelectedFile(file);
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Handle form submission here
+    console.log(formData, selectedFile);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      
+      {/* Modal */}
+      <div className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-[#1a1b1e] border border-white/10">
+        {/* Modal Header */}
+        <div className="flex items-center justify-between p-6 border-b border-white/10">
+          <h3 className="text-xl font-medium text-white">Upload Your Model</h3>
+          <button
+            onClick={onClose}
+            className="p-1 text-white/60 hover:text-white transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* File Upload Section */}
+          <div className="relative group">
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="hidden"
+              id="model-file"
+              accept=".h5,.pkl,.pt,.onnx"
+            />
+            <label
+              htmlFor="model-file"
+              className="flex flex-col items-center justify-center w-full h-48 rounded-xl border-2 border-dashed border-white/20 bg-white/5 hover:bg-white/[0.07] hover:border-white/30 transition-all cursor-pointer group-hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]"
+            >
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                {selectedFile ? (
+                  <>
+                    <FileUp className="w-10 h-10 mb-3 text-[#3b82f6]" />
+                    <p className="mb-2 text-sm text-white/90">
+                      <span className="font-semibold">{selectedFile.name}</span>
+                    </p>
+                    <p className="text-xs text-white/60">
+                      Click to change file
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-10 h-10 mb-3 text-white/70" />
+                    <p className="mb-2 text-sm text-white/90">
+                      <span className="font-semibold">Click to upload</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-white/60">
+                      Supported formats: .h5, .pkl, .pt, .onnx
+                    </p>
+                  </>
+                )}
+              </div>
+            </label>
+          </div>
+
+          {/* Form Fields */}
+          <div className="grid grid-cols-2 gap-6">
+            {/* Model Name */}
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-white/90 mb-2">
+                Model Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
+                placeholder="Enter model name"
+              />
+            </div>
+
+            {/* Description */}
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-white/90 mb-2">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows={3}
+                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all resize-none"
+                placeholder="Describe your model..."
+              />
+            </div>
+
+            {/* Cost Per Call */}
+            <div>
+              <label className="block text-sm font-medium text-white/90 mb-2">
+                Cost Per Call (ETH)
+              </label>
+              <input
+                type="text"
+                name="costPerCall"
+                value={formData.costPerCall}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
+                placeholder="0.01"
+              />
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="block text-sm font-medium text-white/90 mb-2">
+                Category
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
+              >
+                <option value="" disabled>Select category</option>
+                <option value="nlp">Natural Language Processing</option>
+                <option value="cv">Computer Vision</option>
+                <option value="rl">Reinforcement Learning</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            {/* Version */}
+            <div>
+              <label className="block text-sm font-medium text-white/90 mb-2">
+                Version
+              </label>
+              <input
+                type="text"
+                name="version"
+                value={formData.version}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
+                placeholder="1.0.0"
+              />
+            </div>
+
+            {/* Tags */}
+            <div>
+              <label className="block text-sm font-medium text-white/90 mb-2">
+                Tags
+              </label>
+              <input
+                type="text"
+                name="tags"
+                value={formData.tags}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
+                placeholder="Enter tags separated by commas"
+              />
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-end pt-4">
+            <button
+              type="submit"
+              className="px-6 py-2.5 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] text-white font-medium rounded-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all duration-300"
+            >
+              Upload Model
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 export default function AllModelsPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useDynamicContext();
   const router = useRouter();
 
@@ -171,7 +391,7 @@ export default function AllModelsPage() {
                     if (model.name === "Carbon Weight Calculator") {
                       router.push('/zkmodel');
                     } else if (model.isUpload) {
-                      router.push('/upload');
+                      setIsModalOpen(true);
                     }
                   }}
                   className={`group relative p-6 rounded-2xl backdrop-blur-xl border transition-all duration-300 hover:scale-[1.02] ${
@@ -243,6 +463,7 @@ export default function AllModelsPage() {
           </div>
         </div>
       </div>
+      <UploadModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
 } 
