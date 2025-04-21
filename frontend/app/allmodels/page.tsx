@@ -2,12 +2,19 @@
 
 import { LineShadowText } from "@/components/magicui/line-shadow-text";
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text";
-import { ChevronRight, Upload, X, Plus, FileUp } from "lucide-react";
+import { ChevronRight, Upload, X, Plus, FileUp, Loader2, Copy, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useRouter } from "next/navigation";
 import { useState, ChangeEvent, FormEvent } from 'react';
+import axios from 'axios';
+import { ethers } from 'ethers';
+import { useAccount, useWalletClient } from 'wagmi';
+import { parseEther } from 'viem';
+import { ModelRegisteryABI, ModelRegisteryAddress } from '@/app/contracts/ModelRegistery';
+import { createPublicClient, createWalletClient, custom, http } from 'viem';
+import { sepolia } from 'viem/chains';
 
 const models = [
   {
@@ -105,7 +112,6 @@ interface FormData {
   tags: string;
 }
 
-// Add Modal Component
 const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -116,6 +122,15 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
     tags: '',
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<string>('');
+  const [ipfsUrl, setIpfsUrl] = useState<string>('');
+  const [showForm, setShowForm] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [registrationError, setRegistrationError] = useState<string>('');
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
+
+  const { address } = useAccount();
+  const { data: walletClient } = useWalletClient();
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -128,12 +143,128 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setSelectedFile(file);
+    setIpfsUrl('');
+    setUploadStatus('');
+    setShowForm(false);
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      setUploadStatus('Please select a file to upload!');
+      return;
+    }
+
+    setUploadStatus('Uploading...');
+
+    // Pinata API keys
+    const PINATA_API_KEY = "86246e280b8cbf709918";
+    const PINATA_API_SECRET = "acb24c100054544eb8f3a11f417cf3f2a8cfb438bed6cb321416e1aa926f26ab";
+
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      // Pinata API URL
+      const url = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
+
+      const res = await axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          pinata_api_key: PINATA_API_KEY,
+          pinata_secret_api_key: PINATA_API_SECRET,
+        },
+      });
+
+      const ipfsHash = res.data.IpfsHash;
+      const ipfsLink = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
+
+      setUploadStatus('File Uploaded Successfully!');
+      setIpfsUrl(ipfsLink);
+      setShowForm(true); // Show the form after successful upload
+    } catch (error) {
+      console.error('Error uploading file: ', error);
+      setUploadStatus('Upload failed. Please try again.');
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log(formData, selectedFile);
+    
+    if (!address || !walletClient) {
+      setRegistrationError('Please connect your wallet first');
+      return;
+    }
+
+    setIsRegistering(true);
+    setRegistrationError('');
+    setTransactionHash(null);
+
+    try {
+      // Create wallet client
+      const wallet = createWalletClient({
+        chain: sepolia,
+        transport: custom(window.ethereum as any)
+      });
+
+      // Create public client
+      const publicClient = createPublicClient({
+        chain: sepolia,
+        transport: http()
+      });
+
+      // Convert cost to wei and calculate registration fee (1% of price)
+      const priceInWei = parseEther(formData.costPerCall);
+      const registrationFee = priceInWei / BigInt(100); // 1% fee
+      
+      // Split tags string into array
+      const tagsArray = formData.tags.split(',').map(tag => tag.trim());
+
+      setUploadStatus('Registering model on blockchain...');
+
+      // Call registerModel function
+      const hash = await walletClient.writeContract({
+        address: ModelRegisteryAddress as `0x${string}`,
+        abi: ModelRegisteryABI,
+        functionName: 'registerModel',
+        args: [
+          formData.name,
+          ipfsUrl,
+          formData.description,
+          priceInWei,
+          formData.category,
+          formData.version,
+          tagsArray
+        ],
+        value: registrationFee
+      });
+
+      setTransactionHash(hash);
+      setUploadStatus('Transaction submitted. Waiting for confirmation...');
+
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({ 
+        hash,
+        timeout: 60000, // 1 minute timeout
+        confirmations: 1
+      });
+
+      if (receipt.status === 'success') {
+        setUploadStatus('Model registered successfully!');
+        // Close modal after successful registration
+        setTimeout(() => {
+          onClose();
+        }, 2000);
+      } else {
+        throw new Error('Transaction failed');
+      }
+
+    } catch (error: any) {
+      console.error('Error registering model:', error);
+      setRegistrationError(error.message || 'Error registering model');
+      setUploadStatus('Registration failed. Please try again.');
+    } finally {
+      setIsRegistering(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -157,7 +288,7 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
         </div>
 
         {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <div className="p-6 space-y-6">
           {/* File Upload Section */}
           <div className="relative group">
             <input
@@ -197,113 +328,225 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
             </label>
           </div>
 
-          {/* Form Fields */}
-          <div className="grid grid-cols-2 gap-6">
-            {/* Model Name */}
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-white/90 mb-2">
-                Model Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
-                placeholder="Enter model name"
-              />
-            </div>
-
-            {/* Description */}
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-white/90 mb-2">
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows={3}
-                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all resize-none"
-                placeholder="Describe your model..."
-              />
-            </div>
-
-            {/* Cost Per Call */}
-            <div>
-              <label className="block text-sm font-medium text-white/90 mb-2">
-                Cost Per Call (ETH)
-              </label>
-              <input
-                type="text"
-                name="costPerCall"
-                value={formData.costPerCall}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
-                placeholder="0.01"
-              />
-            </div>
-
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-medium text-white/90 mb-2">
-                Category
-              </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
-              >
-                <option value="" disabled>Select category</option>
-                <option value="nlp">Natural Language Processing</option>
-                <option value="cv">Computer Vision</option>
-                <option value="rl">Reinforcement Learning</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            {/* Version */}
-            <div>
-              <label className="block text-sm font-medium text-white/90 mb-2">
-                Version
-              </label>
-              <input
-                type="text"
-                name="version"
-                value={formData.version}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
-                placeholder="1.0.0"
-              />
-            </div>
-
-            {/* Tags */}
-            <div>
-              <label className="block text-sm font-medium text-white/90 mb-2">
-                Tags
-              </label>
-              <input
-                type="text"
-                name="tags"
-                value={formData.tags}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
-                placeholder="Enter tags separated by commas"
-              />
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end pt-4">
+          {/* Upload Button */}
+          <div className="flex justify-center">
             <button
-              type="submit"
-              className="px-6 py-2.5 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] text-white font-medium rounded-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all duration-300"
+              type="button"
+              onClick={handleUpload}
+              disabled={uploadStatus === 'Uploading...'}
+              className={`px-8 py-3 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] text-white font-medium rounded-lg transition-all duration-300 ${
+                uploadStatus === 'Uploading...'
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-105'
+              }`}
             >
-              Upload Model
+              {uploadStatus === 'Uploading...' ? (
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Uploading...</span>
+                </div>
+              ) : (
+                'Upload Model'
+              )}
             </button>
           </div>
-        </form>
+
+          {/* Upload Status and IPFS Link */}
+          {(uploadStatus || ipfsUrl) && (
+            <div className="mt-4 p-4 rounded-lg bg-white/5 border border-white/10">
+              {uploadStatus && uploadStatus !== 'Uploading...' && (
+                <div className={`mb-2 ${
+                  uploadStatus.includes('Successfully') 
+                    ? 'text-green-400' 
+                    : 'text-red-400'
+                }`}>
+                  {uploadStatus}
+                </div>
+              )}
+              {ipfsUrl && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-white/70">IPFS Link:</span>
+                  <a
+                    href={ipfsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#3b82f6] hover:underline break-all"
+                  >
+                    {ipfsUrl}
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Form Fields - Only shown after successful upload */}
+          {showForm && (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                {/* Model Name */}
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-white/90 mb-2">
+                    Model Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
+                    placeholder="Enter model name"
+                    required
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-white/90 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all resize-none"
+                    placeholder="Describe your model..."
+                    required
+                  />
+                </div>
+
+                {/* Cost Per Call */}
+                <div>
+                  <label className="block text-sm font-medium text-white/90 mb-2">
+                    Cost Per Call (ETH)
+                  </label>
+                  <input
+                    type="text"
+                    name="costPerCall"
+                    value={formData.costPerCall}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
+                    placeholder="0.01"
+                    required
+                  />
+                </div>
+
+                {/* Category */}
+                <div>
+                  <label className="block text-sm font-medium text-white/90 mb-2">
+                    Category
+                  </label>
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
+                    required
+                  >
+                    <option value="" disabled>Select category</option>
+                    <option value="nlp">Natural Language Processing</option>
+                    <option value="cv">Computer Vision</option>
+                    <option value="rl">Reinforcement Learning</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                {/* Version */}
+                <div>
+                  <label className="block text-sm font-medium text-white/90 mb-2">
+                    Version
+                  </label>
+                  <input
+                    type="text"
+                    name="version"
+                    value={formData.version}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
+                    placeholder="1.0.0"
+                    required
+                  />
+                </div>
+
+                {/* Tags */}
+                <div>
+                  <label className="block text-sm font-medium text-white/90 mb-2">
+                    Tags
+                  </label>
+                  <input
+                    type="text"
+                    name="tags"
+                    value={formData.tags}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg focus:border-[#3b82f6]/50 focus:ring-2 focus:ring-[#3b82f6]/20 text-white placeholder-white/40 transition-all"
+                    placeholder="Enter tags separated by commas"
+                    required
+                  />
+                </div>
+
+                {/* Add error message display */}
+                {registrationError && (
+                  <div className="col-span-2 mt-4 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+                    {registrationError}
+                  </div>
+                )}
+
+                {/* Update the Save Model Details button */}
+                <div className="col-span-2 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isRegistering}
+                    className={`px-6 py-2.5 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] text-white font-medium rounded-lg transition-all duration-300 ${
+                      isRegistering
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]'
+                    }`}
+                  >
+                    {isRegistering ? (
+                      <div className="flex items-center space-x-2">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>Registering...</span>
+                      </div>
+                    ) : (
+                      'Save Model Details'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
+
+          {/* Add transaction hash display */}
+          {transactionHash && (
+            <div className="mt-4 p-4 rounded-lg bg-white/5 border border-white/10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                  <span className="text-white/70 text-sm">
+                    Transaction Hash: {transactionHash.slice(0, 6)}...{transactionHash.slice(-4)}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(transactionHash);
+                    setUploadStatus('Transaction hash copied!');
+                  }}
+                  className="p-1 hover:bg-white/10 rounded transition-colors"
+                >
+                  <Copy className="w-4 h-4 text-white/60 hover:text-white/80" />
+                </button>
+              </div>
+              <a
+                href={`https://seitrace.com/tx/${transactionHash}?chain=atlantic-2`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 flex items-center gap-2 text-[#3b82f6] hover:underline text-sm"
+              >
+                <ExternalLink className="w-4 h-4" />
+                View on Seitrace
+              </a>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
