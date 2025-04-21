@@ -8,6 +8,16 @@ import { AnimatedGradientText } from "@/components/magicui/animated-gradient-tex
 import { ChevronRight, Upload, FileJson, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
+import { Halo2VerifierABI, Halo2VerifierAddress } from './contracts/Halo2Verifier';
+import { ethers } from 'ethers';
+
+declare global {
+  interface Window {
+    dynamic: {
+      wallet: any;
+    };
+  }
+}
 
 type StepStatus = 'pending' | 'in-progress' | 'completed' | 'error';
 
@@ -23,11 +33,14 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
   const [proof, setProof] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showProofDetails, setShowProofDetails] = useState(false);
   const [steps, setSteps] = useState<Step[]>([
     { name: 'Witness Generation', status: 'pending', description: 'Generating witness from input' },
     { name: 'Proof Generation', status: 'pending', description: 'Creating zero-knowledge proof' },
     { name: 'Proof Verification', status: 'pending', description: 'Verifying the generated proof' }
   ]);
+  const [verifying, setVerifying] = useState(false);
+  const [verificationResult, setVerificationResult] = useState<string | null>(null);
 
   const updateStepStatus = (stepIndex: number, status: StepStatus) => {
     setSteps(prev => prev.map((step, idx) => 
@@ -73,7 +86,10 @@ export default function Page() {
         setMessage(result.error || 'Error processing file.');
         setSteps(steps.map(step => ({ ...step, status: 'error' })));
       } else {
-      const result = await response.json();
+        const result = await response.json();
+        console.log('API Response:', result);
+        console.log('Hex Proof:', result.hex_proof);
+        console.log('Outputs:', result.pretty_public_inputs?.outputs);
         setMessage('All steps completed successfully!');
         setProof(result);
         setSteps(steps.map(step => ({ ...step, status: 'completed' })));
@@ -84,6 +100,43 @@ export default function Page() {
       setSteps(steps.map(step => ({ ...step, status: 'error' })));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const verifyProof = async () => {
+    if (!proof?.proof) {
+      setMessage('No proof available to verify');
+      return;
+    }
+
+    try {
+      setVerifying(true);
+      setMessage('Verifying proof on Sei...');
+
+      // Convert hex proof to bytes
+      const hexProof = proof.proof.hex_proof;
+      const proofBytes = ethers.getBytes(hexProof);
+
+      // Convert outputs to uint256 array
+      const outputs = proof.proof.pretty_public_inputs.outputs[0];
+      const instances = outputs.map((output: string) => ethers.toBigInt(output));
+
+      // Create contract instance using dynamic wallet
+      const provider = new ethers.BrowserProvider(window.dynamic.wallet);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(Halo2VerifierAddress, Halo2VerifierABI, signer);
+
+      // Call verifyProof function
+      const result = await contract.verifyProof(proofBytes, instances);
+      
+      setVerificationResult(result ? 'Proof verified successfully!' : 'Proof verification failed');
+      setMessage(result ? 'Proof verified successfully!' : 'Proof verification failed');
+    } catch (error) {
+      console.error('Verification error:', error);
+      setMessage('Error verifying proof');
+      setVerificationResult('Verification failed');
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -312,6 +365,89 @@ export default function Page() {
                       <FileJson className="w-5 h-5" />
                       View Proof
                     </button>
+                  </div>
+                )}
+
+                {/* Proof Details */}
+                {proof && (
+                  <div className="mt-8 bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-medium text-white">Essential Proof Details to be verified on-chain are :</h3>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setShowProofDetails(!showProofDetails)}
+                          className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white/80 text-sm font-medium"
+                        >
+                          {showProofDetails ? 'Hide Details' : 'Show Details'}
+                        </button>
+                        <button
+                          onClick={verifyProof}
+                          disabled={verifying}
+                          className={cn(
+                            "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                            "bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] text-white",
+                            "hover:from-[#4b92f6] hover:to-[#9b6cf6] hover:shadow-lg hover:shadow-[#3b82f6]/20",
+                            "disabled:opacity-50 disabled:cursor-not-allowed",
+                            "flex items-center gap-2"
+                          )}
+                        >
+                          {verifying ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Verifying...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 className="w-4 h-4" />
+                              Verify on Sei
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {verificationResult && (
+                      <div className={cn(
+                        "p-4 rounded-lg mb-4",
+                        verificationResult.includes('successfully') 
+                          ? 'bg-green-500/10 border border-green-500/20' 
+                          : 'bg-red-500/10 border border-red-500/20'
+                      )}>
+                        <p className={cn(
+                          "text-sm flex items-center gap-2",
+                          verificationResult.includes('successfully') ? 'text-green-400' : 'text-red-400'
+                        )}>
+                          {verificationResult.includes('successfully') ? (
+                            <CheckCircle2 className="w-4 h-4" />
+                          ) : (
+                            <XCircle className="w-4 h-4" />
+                          )}
+                          {verificationResult}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {showProofDetails && (
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="text-sm font-medium text-white/60 mb-2">Hex Proof</h4>
+                          <div className="p-4 bg-black/20 rounded-lg">
+                            <pre className="text-xs text-white/80 break-all whitespace-pre-wrap">
+                              {proof.proof?.hex_proof || 'No hex proof available'}
+                            </pre>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h4 className="text-sm font-medium text-white/60 mb-2">Outputs</h4>
+                          <div className="p-4 bg-black/20 rounded-lg">
+                            <pre className="text-xs text-white/80 whitespace-pre-wrap">
+                              {proof.proof?.pretty_public_inputs?.outputs?.[0] ? JSON.stringify(proof.proof.pretty_public_inputs.outputs[0], null, 2) : 'No outputs available'}
+                            </pre>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
