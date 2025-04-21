@@ -73,6 +73,40 @@ export default function LandingPage() {
               <p className="text-xl text-white max-w-2xl mx-auto font-bold italic">
                 Snug your models, prove with love — zkML on Sei just got huggable.
               </p>
+              <p className="text-lg text-white/80 max-w-2xl mx-auto mt-4">
+                A zkML model execution and verification hub powered by zero-knowledge proofs on the Sei blockchain.
+              </p>
+
+              {/* Partner Logos */}
+              <div className="flex items-center justify-center gap-6 mt-8 mb-8">
+                <div className="relative group">
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                  <div className="relative w-14 h-14 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] p-[2px] shadow-lg shadow-[#3b82f6]/30 group-hover:shadow-[#3b82f6]/50 transition-shadow">
+                    <div className="w-full h-full rounded-full overflow-hidden">
+                      <img
+                        src="/dynamic.png"
+                        alt="Dynamic Logo"
+                        className="w-full h-full object-cover"
+                        style={{ background: 'white' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative group">
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#dc2626] to-[#ef4444] blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                  <div className="relative w-14 h-14 rounded-full bg-gradient-to-r from-[#dc2626] to-[#ef4444] p-[2px] shadow-lg shadow-[#dc2626]/30 group-hover:shadow-[#dc2626]/50 transition-shadow">
+                    <div className="w-full h-full rounded-full overflow-hidden">
+                      <img
+                        src="/sei.png"
+                        alt="Sei Logo"
+                        className="w-full h-full object-cover"
+                        style={{ background: '#dc2626' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {/* Get Started Button */}
               <div className="group relative mx-auto flex items-center justify-center rounded-full px-3 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f] w-fit bg-black">
@@ -264,7 +298,7 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-      </div>
+    </div>
     </>
   );
-} 
+}

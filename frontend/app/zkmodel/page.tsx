@@ -68,7 +68,7 @@ export default function Page() {
   const { user, setShowAuthFlow } = useDynamicContext();
 
   const updateStepStatus = (stepIndex: number, status: StepStatus) => {
-    setSteps(prev => prev.map((step, idx) =>
+    setSteps(prev => prev.map((step, idx) => 
       idx === stepIndex ? { ...step, status } : step
     ));
   };
@@ -457,37 +457,37 @@ export default function Page() {
               <div className="space-y-8">
                 {/* Upload Section */}
                 <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 transform hover:scale-[1.02] transition-all duration-300">
-                  <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-4">
                       <label className="block text-white text-lg font-medium">
-                        Upload input.json
-                      </label>
-                      <div className="flex items-center justify-center w-full">
+                Upload input.json
+              </label>
+              <div className="flex items-center justify-center w-full">
                         <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-white/40 transition-colors group">
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <div className="p-4 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors">
                               <FileJson className="w-12 h-12 mb-3 text-white/60 group-hover:text-white/80 transition-colors" />
                             </div>
                             <p className="mt-4 mb-2 text-sm text-white/60 group-hover:text-white/80 transition-colors">
-                              <span className="font-semibold">Click to upload</span> or drag and drop
-                            </p>
+                      <span className="font-semibold">Click to upload</span> or drag and drop
+                    </p>
                             <p className="text-xs text-white/40">input.json only</p>
-                          </div>
-                          <input
-                            type="file"
-                            accept=".json"
-                            onChange={handleFileChange}
-                            className="hidden"
-                          />
-                        </label>
-                      </div>
-                      {file && (
+                  </div>
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              {file && (
                         <div className="text-white/60 text-sm flex items-center gap-2">
                           <FileJson className="w-4 h-4" />
                           <span className="font-medium">{file.name}</span>
-                        </div>
-                      )}
-                    </div>
+                </div>
+              )}
+            </div>
 
                     {/* Preview Section */}
                     <div className="mt-4 p-4 bg-black/20 rounded-lg">
@@ -504,9 +504,9 @@ export default function Page() {
                       </pre>
                     </div>
 
-                    <button
-                      type="submit"
-                      disabled={loading || !file}
+            <button
+              type="submit"
+              disabled={loading || !file}
                       className={cn(
                         "w-full py-4 px-6 rounded-lg font-medium transition-all duration-200",
                         "bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] text-white",
@@ -514,53 +514,53 @@ export default function Page() {
                         "disabled:opacity-50 disabled:cursor-not-allowed",
                         "flex items-center justify-center gap-2"
                       )}
-                    >
-                      {loading ? (
+            >
+              {loading ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          Processing...
+                  Processing...
                         </>
-                      ) : (
+              ) : (
                         <>
                           <Upload className="w-5 h-5" />
                           Generate Proof
                         </>
-                      )}
-                    </button>
-                  </form>
-                </div>
+              )}
+            </button>
+          </form>
+        </div>
 
                 {/* Processing Steps */}
                 <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10">
                   <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
                     <ChevronRight className="w-5 h-5 text-white/60" />
-                    Processing Steps
-                  </h2>
+            Processing Steps
+          </h2>
                   <div className="space-y-6">
-                    {steps.map((step, index) => (
+            {steps.map((step, index) => (
                       <div key={step.name} className="flex items-center gap-4 group">
                         <div className={cn(
                           "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
                           getStepColor(step.status),
                           "group-hover:scale-105"
                         )}>
-                          {getStepIcon(step.status)}
-                        </div>
+                    {getStepIcon(step.status)}
+                  </div>
                         <div className="flex-1">
                           <h3 className="text-white font-medium group-hover:text-white/90 transition-colors">
-                            {step.name}
-                          </h3>
+                      {step.name}
+                    </h3>
                           <p className="text-white/60 text-sm group-hover:text-white/70 transition-colors">
-                            {step.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                    {step.description}
+                  </p>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
                 {/* Message Display */}
-                {message && (
+        {message && (
                   <div className={cn(
                     "p-4 rounded-lg",
                     message.includes('Error') ? 'bg-red-500/10 border border-red-500/20' : 'bg-green-500/10 border border-green-500/20'
@@ -569,21 +569,21 @@ export default function Page() {
                       "text-sm flex items-center gap-2",
                       message.includes('Error') ? 'text-red-400' : 'text-green-400'
                     )}>
-                      {message.includes('Error') ? (
+                {message.includes('Error') ? (
                         <XCircle className="w-4 h-4" />
                       ) : (
                         <CheckCircle2 className="w-4 h-4" />
                       )}
                       {message}
                     </p>
-                  </div>
-                )}
+          </div>
+        )}
 
                 {/* View Proof Button */}
-                {proof && (
+        {proof && (
                   <div className="flex justify-center">
-                    <button
-                      onClick={() => setShowModal(true)}
+            <button
+              onClick={() => setShowModal(true)}
                       className={cn(
                         "py-3 px-6 rounded-lg font-medium transition-all duration-200",
                         "bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] text-white",
@@ -592,10 +592,10 @@ export default function Page() {
                       )}
                     >
                       <FileJson className="w-5 h-5" />
-                      View Proof
-                    </button>
-                  </div>
-                )}
+              View Proof
+            </button>
+          </div>
+        )}
 
                 {/* Proof Details */}
                 {proof && (
@@ -704,19 +704,19 @@ export default function Page() {
               </div>
               <div className="bg-black/20 rounded-lg p-4">
                 <pre className="text-white/80 text-sm overflow-auto">
-                  {JSON.stringify(proof.proof, null, 2)}
-                </pre>
-              </div>
-              {proof.verification && (
-                <div className="mt-4">
+                    {JSON.stringify(proof.proof, null, 2)}
+                  </pre>
+                </div>
+                {proof.verification && (
+                  <div className="mt-4">
                   <h3 className="text-lg font-semibold text-white mb-2">Verification Result</h3>
                   <div className="bg-black/20 rounded-lg p-4">
                     <pre className="text-white/80 text-sm">
-                      {proof.verification}
-                    </pre>
+                        {proof.verification}
+                      </pre>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
         )}

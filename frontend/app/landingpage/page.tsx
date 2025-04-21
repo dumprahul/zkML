@@ -197,27 +197,19 @@ export default function LandingPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Step 1 */}
-                <div className="group relative p-8 rounded-3xl bg-gradient-to-br from-[#1e1b4b]/50 to-[#0f172a]/50 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] hover:scale-105">
-                  {/* Decorative corner elements */}
-                  <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-[#3b82f6]/20 to-transparent rounded-tl-3xl" />
-                  <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-[#8b5cf6]/20 to-transparent rounded-br-3xl" />
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 transform hover:scale-[1.02] transition-all duration-300 relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#3b82f6]/20 via-[#8b5cf6]/20 to-[#ec4899]/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                   
-                  {/* Number circle with glow */}
-                  <div className="absolute -top-6 -left-6 w-20 h-20 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#3b82f6]/30 group-hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-shadow duration-500">
-                    <span className="text-3xl">1</span>
-                  </div>
-
                   {/* Content */}
-                  <div className="relative z-10">
-                    <h3 className="text-2xl font-bold text-white mb-4">
-                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6]">
-                        Upload Your Model
-                      </span>
+                  <div className="relative z-10 space-y-4">
+                    <div className="text-sm text-white/60 font-medium">Step 1</div>
+                    <h3 className="text-xl font-medium text-white">
+                      Upload Your Model
                     </h3>
-                    <p className="text-white/70 text-lg leading-relaxed">
+                    <p className="text-white/70 text-base leading-relaxed">
                       Upload your machine learning model to ZuggingFace. We support various model formats and architectures.
                     </p>
-                    <div className="mt-6">
+                    <div className="pt-2">
                       <span className="inline-flex items-center text-sm font-medium text-white/60 group-hover:text-white transition-colors">
                         Learn more
                         <ChevronRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -227,27 +219,19 @@ export default function LandingPage() {
                 </div>
 
                 {/* Step 2 */}
-                <div className="group relative p-8 rounded-3xl bg-gradient-to-br from-[#1e1b4b]/50 to-[#0f172a]/50 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-500 hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:scale-105">
-                  {/* Decorative corner elements */}
-                  <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-[#8b5cf6]/20 to-transparent rounded-tl-3xl" />
-                  <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-[#ec4899]/20 to-transparent rounded-br-3xl" />
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 transform hover:scale-[1.02] transition-all duration-300 relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#8b5cf6]/20 via-[#ec4899]/20 to-[#3b82f6]/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                   
-                  {/* Number circle with glow */}
-                  <div className="absolute -top-6 -left-6 w-20 h-20 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#ec4899] flex items-center justify-center text-white font-bold shadow-lg shadow-[#8b5cf6]/30 group-hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] transition-shadow duration-500">
-                    <span className="text-3xl">2</span>
-                  </div>
-
                   {/* Content */}
-                  <div className="relative z-10">
-                    <h3 className="text-2xl font-bold text-white mb-4">
-                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#8b5cf6] to-[#ec4899]">
-                        Generate Proofs
-                      </span>
+                  <div className="relative z-10 space-y-4">
+                    <div className="text-sm text-white/60 font-medium">Step 2</div>
+                    <h3 className="text-xl font-medium text-white">
+                      Generate Proofs
                     </h3>
-                    <p className="text-white/70 text-lg leading-relaxed">
+                    <p className="text-white/70 text-base leading-relaxed">
                       Our platform automatically generates zero-knowledge proofs for your model's inferences using Halo2.
                     </p>
-                    <div className="mt-6">
+                    <div className="pt-2">
                       <span className="inline-flex items-center text-sm font-medium text-white/60 group-hover:text-white transition-colors">
                         Learn more
                         <ChevronRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -257,27 +241,19 @@ export default function LandingPage() {
                 </div>
 
                 {/* Step 3 */}
-                <div className="group relative p-8 rounded-3xl bg-gradient-to-br from-[#1e1b4b]/50 to-[#0f172a]/50 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-500 hover:shadow-[0_0_30px_rgba(236,72,153,0.3)] hover:scale-105">
-                  {/* Decorative corner elements */}
-                  <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-[#ec4899]/20 to-transparent rounded-tl-3xl" />
-                  <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-[#3b82f6]/20 to-transparent rounded-br-3xl" />
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 transform hover:scale-[1.02] transition-all duration-300 relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#ec4899]/20 via-[#3b82f6]/20 to-[#8b5cf6]/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                   
-                  {/* Number circle with glow */}
-                  <div className="absolute -top-6 -left-6 w-20 h-20 rounded-full bg-gradient-to-r from-[#ec4899] to-[#3b82f6] flex items-center justify-center text-white font-bold shadow-lg shadow-[#ec4899]/30 group-hover:shadow-[0_0_30px_rgba(236,72,153,0.5)] transition-shadow duration-500">
-                    <span className="text-3xl">3</span>
-                  </div>
-
                   {/* Content */}
-                  <div className="relative z-10">
-                    <h3 className="text-2xl font-bold text-white mb-4">
-                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#ec4899] to-[#3b82f6]">
-                        Verify on Sei
-                      </span>
+                  <div className="relative z-10 space-y-4">
+                    <div className="text-sm text-white/60 font-medium">Step 3</div>
+                    <h3 className="text-xl font-medium text-white">
+                      Verify on Sei
                     </h3>
-                    <p className="text-white/70 text-lg leading-relaxed">
+                    <p className="text-white/70 text-base leading-relaxed">
                       Deploy your verified proofs on the Sei blockchain for trustless verification and integration with smart contracts.
                     </p>
-                    <div className="mt-6">
+                    <div className="pt-2">
                       <span className="inline-flex items-center text-sm font-medium text-white/60 group-hover:text-white transition-colors">
                         Learn more
                         <ChevronRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
