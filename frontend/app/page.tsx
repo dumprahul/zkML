@@ -137,6 +137,11 @@ export default function Page() {
       return;
     }
 
+    if (!window.ethereum) {
+      setMessage('No Ethereum provider found');
+      return;
+    }
+
     try {
       setVerifying(true);
       setMessage('Verifying proof on Sei...');
@@ -150,6 +155,52 @@ export default function Page() {
       // Convert outputs to uint256 array
       const outputs = proof.proof.pretty_public_inputs.outputs[0];
       const instances = outputs.map((output: string) => BigInt(output));
+
+      // Get the current chain ID from Dynamic wallet
+      const currentChainId = String(await window.ethereum.request({ method: 'eth_chainId' }));
+      
+      // If not on Sei testnet, request to switch
+      if (currentChainId !== `0x${seiTestnet.id.toString(16)}`) {
+        setMessage('Adding Sei Testnet to wallet...');
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: `0x${seiTestnet.id.toString(16)}`,
+              chainName: seiTestnet.name,
+              nativeCurrency: {
+                name: seiTestnet.nativeCurrency.name,
+                symbol: seiTestnet.nativeCurrency.symbol,
+                decimals: seiTestnet.nativeCurrency.decimals,
+              },
+              rpcUrls: seiTestnet.rpcUrls.default.http,
+              blockExplorerUrls: [seiTestnet.blockExplorers.default.url],
+            }],
+          });
+        } catch (addError: any) {
+          console.error('Error adding Sei Testnet:', addError);
+          if (addError.code === 4001) {
+            setMessage('User rejected adding Sei Testnet');
+            return;
+          }
+          throw addError;
+        }
+
+        setMessage('Switching to Sei Testnet...');
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: `0x${seiTestnet.id.toString(16)}` }],
+          });
+        } catch (switchError: any) {
+          console.error('Error switching to Sei Testnet:', switchError);
+          if (switchError.code === 4001) {
+            setMessage('User rejected switching to Sei Testnet');
+            return;
+          }
+          throw switchError;
+        }
+      }
 
       // Create wallet client with Sei testnet
       const walletClient = createWalletClient({
@@ -181,12 +232,12 @@ export default function Page() {
       setMessage('Transaction submitted. Waiting for confirmation...');
 
       // Wait for transaction receipt with increased timeout
-      const receipt = await publicClient.waitForTransactionReceipt({
+      const receipt = await publicClient.waitForTransactionReceipt({ 
         hash,
         timeout: 300000, // 5 minutes timeout
         confirmations: 1
       });
-
+      
       if (receipt.status === 'success') {
         setVerificationResult('Proof verified successfully!');
         setMessage('Proof verified successfully!');
@@ -197,12 +248,30 @@ export default function Page() {
         setVerifying(false);
       }
     } catch (error: any) {
-      console.error('Verification error:', error);
+      console.error('Verification error:', {
+        message: error.message,
+        code: error.code,
+        name: error.name,
+        stack: error.stack,
+        data: error.data,
+        cause: error.cause
+      });
+
       if (error.name === 'WaitForTransactionReceiptTimeoutError') {
         setMessage('Transaction submitted but taking longer than expected to confirm. Please check the transaction status later.');
         setVerificationResult('Transaction pending confirmation');
+      } else if (error.code === 4902) {
+        // Chain not added to wallet
+        setMessage('Sei Testnet not found in wallet. Please add it manually.');
+        setVerificationResult('Network error');
+      } else if (error.message?.includes('user rejected')) {
+        setMessage('Transaction was rejected by user');
+        setVerificationResult('Transaction rejected');
+      } else if (error.message?.includes('insufficient funds')) {
+        setMessage('Insufficient funds for transaction');
+        setVerificationResult('Insufficient funds');
       } else {
-        setMessage('Error verifying proof');
+        setMessage(`Error verifying proof: ${error.message || 'Unknown error'}`);
         setVerificationResult('Verification failed');
       }
       setTransactionHash(null);
