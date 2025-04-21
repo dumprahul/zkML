@@ -14,13 +14,15 @@ const models = [
     description: "Upload and verify your own custom machine learning model",
     isUpload: true,
     color: "#3b82f6",
+    status: "NotAvailable"
   },
   {
-    name: "Image Classifier",
-    description: "Advanced image classification model with zero-knowledge proofs for privacy-preserving inference",
+    name: "Carbon Weight Calculator",
+    description: "Calculate your carbon credits based on your inputs. Prove your carbon credits without revealing your data.",
     owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
     costPerCall: "0.01 ETH",
     color: "#3b82f6",
+    status: "Available"
   },
   {
     name: "NLP Model",
@@ -28,6 +30,7 @@ const models = [
     owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
     costPerCall: "0.02 ETH",
     color: "#8b5cf6",
+    status: "NotAvailable"
   },
   {
     name: "Security Model",
@@ -35,6 +38,7 @@ const models = [
     owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
     costPerCall: "0.015 ETH",
     color: "#ec4899",
+    status: "NotAvailable"
   },
   {
     name: "Recommendation",
@@ -42,6 +46,7 @@ const models = [
     owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
     costPerCall: "0.01 ETH",
     color: "#f59e0b",
+    status: "NotAvailable"
   },
   {
     name: "Time Series",
@@ -49,6 +54,7 @@ const models = [
     owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
     costPerCall: "0.02 ETH",
     color: "#10b981",
+    status: "NotAvailable"
   },
   {
     name: "Privacy Model",
@@ -56,6 +62,7 @@ const models = [
     owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
     costPerCall: "0.015 ETH",
     color: "#6366f1",
+    status: "NotAvailable"
   },
   {
     name: "Optimization",
@@ -63,6 +70,7 @@ const models = [
     owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
     costPerCall: "0.01 ETH",
     color: "#f43f5e",
+    status: "NotAvailable"
   },
   {
     name: "Network Model",
@@ -70,6 +78,7 @@ const models = [
     owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
     costPerCall: "0.02 ETH",
     color: "#8b5cf6",
+    status: "NotAvailable"
   },
   {
     name: "Custom Model",
@@ -77,6 +86,7 @@ const models = [
     owner: "0x0612D26676869aFcF8BCfdcC55Bd62a307fBF4b5",
     costPerCall: "0.01 ETH",
     color: "#3b82f6",
+    status: "NotAvailable"
   },
 ];
 
@@ -157,7 +167,18 @@ export default function AllModelsPage() {
               {models.map((model, index) => (
                 <div
                   key={model.name}
+                  onClick={() => {
+                    if (model.name === "Carbon Weight Calculator") {
+                      router.push('/zkmodel');
+                    } else if (model.isUpload) {
+                      router.push('/upload');
+                    }
+                  }}
                   className={`group relative p-6 rounded-2xl backdrop-blur-xl border transition-all duration-300 hover:scale-[1.02] ${
+                    (model.name === "Carbon Weight Calculator" || model.isUpload) 
+                      ? "cursor-pointer" 
+                      : "cursor-not-allowed opacity-50"
+                  } ${
                     model.isUpload
                       ? "bg-gradient-to-br from-[#3b82f6]/20 to-[#8b5cf6]/20 border-[#3b82f6]/30 hover:border-[#3b82f6]/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]"
                       : "bg-white/5 border-white/10 hover:border-white/20 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]"
@@ -165,9 +186,20 @@ export default function AllModelsPage() {
                 >
                   {/* Content */}
                   <div className="relative z-10">
-                    <h3 className="text-xl font-bold text-white mb-3">
-                      {model.name}
-                    </h3>
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="text-xl font-bold text-white">
+                        {model.name}
+                      </h3>
+                      {!model.isUpload && (
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          model.status === "Available" 
+                            ? "bg-green-500/20 text-green-400" 
+                            : "bg-red-500/20 text-red-400"
+                        }`}>
+                          {model.status}
+                        </span>
+                      )}
+                    </div>
                     {model.isUpload ? (
                       <div className="space-y-4">
                         <p className="text-white/70 text-base leading-relaxed">

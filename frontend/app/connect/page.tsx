@@ -15,9 +15,9 @@ export default function ConnectPage() {
   const { user } = useDynamicContext();
 
   useEffect(() => {
-    // if (user) {
-    //   router.push('/');
-    // }
+    if (user) {
+      router.push('/allmodels');
+    }
   }, [user, router]);
 
   return (
