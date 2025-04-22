@@ -10,7 +10,7 @@ A zkML model execution and verification hub powered by zero-knowledge proofs on 
 
 **Project Setup Link Video**- https://youtu.be/vV8HDszWtwE
 
-**Deployed Contracts**
+**Deployed Contracts on Sei Testnet**
 
 Halo2VerifierCircuit.sol - https://seitrace.com/tx/0xb4004254a59f6c9cb087e970fa3019a3e80243c88830bed33612bcd0b19d96e3?chain=atlantic-2
 
