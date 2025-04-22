@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
+//contract address- 0xBD8e1748BE54775d32Cbd2Cbe193F2FD6Cd017a4
 //deployed on sei - https://seitrace.com/tx/0xb4004254a59f6c9cb087e970fa3019a3e80243c88830bed33612bcd0b19d96e3?chain=atlantic-2
-//tx hash on sei - 0xb4004254a59f6c9cb087e970fa3019a3e80243c88830bed33612bcd0b19d96e3
 
 contract Halo2Verifier {
     uint256 internal constant    DELTA = 4131629893567559867359510883348571134090853742863529169391034518566172092834;
