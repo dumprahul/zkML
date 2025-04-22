@@ -1,4 +1,4 @@
-#zuggingFace - Decentralized zkML Platform built on Sei.
+# zuggingFace - Decentralized zkML Platform built on Sei.
 
 **Project Description:**
 
@@ -21,6 +21,33 @@ ModelRegistery.sol - https://seitrace.com/tx/0x4147df8aa6f1e2458cd3f8f15da77bf5b
  ```bash
     0xE482db1c83Bb1A22c93642ad2494845DD367A369
  ```
+
+Setup for ZuggingFace in your Local Machine:
+
+1.Download ezkl CLI
+
+ ```bash
+    curl https://raw.githubusercontent.com/zkonduit/ezkl/main/install_ezkl_cli.sh | bash
+ ```
+2.Check the ezkl version in terminal
+
+ ```bash
+    ezkl --version
+ ```
+2.After successful installation, clone the repo
+
+ ```bash
+    git clone https://github.com/dumprahul/zuggingFace
+    cd frontend
+    npm install
+ ```
+
+3. Download the circuits and respective keys from the link:
+
+   ```bash
+    https://drive.google.com/drive/folders/1wN3Jy0rV1PaKZyfK-vNMVMR-6Wy07X9G
+  ```
+
 
 
 
