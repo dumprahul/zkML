@@ -4,7 +4,9 @@
 
 A zkML model execution and verification hub powered by zero-knowledge proofs on the Sei blockchain.
 
-<img width="1440" alt="Screenshot 2025-04-22 at 9 55 25 AM" src="https://github.com/user-attachments/assets/c8490774-e399-4e48-8f6a-d2c02887c972" />#
+<img width="1440" alt="Screenshot 2025-04-22 at 9 55 25 AM" src="https://github.com/user-attachments/assets/c8490774-e399-4e48-8f6a-d2c02887c972" />
+
+Demo Link - https://youtu.be/DMNPBkB0XPs
 
 **Deployed Contracts**
 
