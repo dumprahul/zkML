@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+//deployed on sei - https://seitrace.com/tx/0x4147df8aa6f1e2458cd3f8f15da77bf5b7d2c0eb9eea899a601e7a365b9c37b2?chain=atlantic-2
+//tx hash on sei- 0x4147df8aa6f1e2458cd3f8f15da77bf5b7d2c0eb9eea899a601e7a365b9c37b2
 contract ModelMarketplace {
     address public owner;
     uint256 public constant PLATFORM_FEE = 100; // 1% in basis points
