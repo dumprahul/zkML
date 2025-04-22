@@ -406,7 +406,7 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
                 {/* Cost Per Call */}
                 <div>
                   <label className="block text-sm font-medium text-white/90 mb-2">
-                    Cost Per Call (ETH)
+                    Cost Per Call (ETH) (ETH TO SEI will be converted.)
                   </label>
                   <input
                     type="text"
