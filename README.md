@@ -1,5 +1,8 @@
 # zuggingFace - Decentralized zkML Platform built on Sei.
 
+![Uploading Screenshot 2025-04-22 at 9.55.25 AM.png…]()
+
+
 **Project Description:**
 
 A zkML model execution and verification hub powered by zero-knowledge proofs on the Sei blockchain.
@@ -19,4 +22,6 @@ ModelRegistery.sol - https://seitrace.com/tx/0x4147df8aa6f1e2458cd3f8f15da77bf5b
  ```bash
     0xE482db1c83Bb1A22c93642ad2494845DD367A369
  ```
+
+
 
