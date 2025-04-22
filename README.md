@@ -44,9 +44,19 @@ Setup for ZuggingFace in your Local Machine:
 
 3. Download the circuits and respective keys from the link:
 
-   ```bash
-    https://drive.google.com/drive/folders/1wN3Jy0rV1PaKZyfK-vNMVMR-6Wy07X9G
-  ```
+ ```bash
+   https://drive.google.com/drive/folders/1wN3Jy0rV1PaKZyfK-vNMVMR-6Wy07X9G
+ ```
+
+4. Paste the ezkl folder into /frontend folder.
+
+5. Now run the zuggingFace:
+
+ ```bash
+   npm run dev
+ ```
+
+ 
 
 
 
